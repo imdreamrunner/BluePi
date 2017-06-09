@@ -1,21 +1,48 @@
-# file: inquiry.py
+# file: rfcomm-client.py
 # auth: Albert Huang <albert@csail.mit.edu>
-# desc: performs a simple device inquiry followed by a remote name request of
-#       each discovered device
-# $Id: inquiry.py 401 2006-05-05 19:07:48Z albert $
+# desc: simple demonstration of a client application that uses RFCOMM sockets
+#       intended for use with rfcomm-server
 #
+# $Id: rfcomm-client.py 424 2006-08-24 03:35:54Z albert $
 
-import bluetooth
+from bluetooth import *
+import sys
 
-print("performing inquiry...")
+if sys.version < '3':
+    input = raw_input
 
-nearby_devices = bluetooth.discover_devices(
-        duration=8, lookup_names=True, flush_cache=True, lookup_class=False)
+addr = None
 
-print("found %d devices" % len(nearby_devices))
+if len(sys.argv) < 2:
+    print("no device specified.  Searching all nearby bluetooth devices for")
+    print("the SampleServer service")
+else:
+    addr = sys.argv[1]
+    print("Searching for SampleServer on %s" % addr)
 
-for addr, name in nearby_devices:
-    try:
-        print("  %s - %s" % (addr, name))
-    except UnicodeEncodeError:
-        print("  %s - %s" % (addr, name.encode('utf-8', 'replace')))
+# search for the SampleServer service
+uuid = "94f39d29-7d6d-437d-973b-fba39e49d4ee"
+service_matches = find_service( uuid = uuid, address = addr )
+
+if len(service_matches) == 0:
+    print("couldn't find the SampleServer service =(")
+    sys.exit(0)
+
+first_match = service_matches[0]
+port = first_match["port"]
+name = first_match["name"]
+host = first_match["host"]
+
+print("connecting to \"%s\" on %s" % (name, host))
+
+# Create the client socket
+sock=BluetoothSocket( RFCOMM )
+sock.connect((host, port))
+
+print("connected.  type stuff")
+while True:
+    data = input()
+    if len(data) == 0: break
+    sock.send(data)
+
+sock.close()
