@@ -6,36 +6,41 @@
 
 from bluetooth import *
 
-server_sock=BluetoothSocket( RFCOMM )
-server_sock.bind(("",PORT_ANY))
-server_sock.listen(1)
+bluetooth_socket = BluetoothSocket(RFCOMM)
+bluetooth_socket.bind(("", PORT_ANY))
+bluetooth_socket.listen(1)
 
-port = server_sock.getsockname()[1]
+port = bluetooth_socket.getsockname()[1]
 
 uuid = "63078d70-feb9-11e7-9812-dca90488bd22"
 
-advertise_service( server_sock, "SampleServer",
-                   service_id = uuid,
-                   service_classes = [ uuid, SERIAL_PORT_CLASS ],
-                   profiles = [ SERIAL_PORT_PROFILE ], 
-#                   protocols = [ OBEX_UUID ] 
-                    )
-                   
+advertise_service(
+    bluetooth_socket,
+    "Chat On Pi",
+    service_id=uuid,
+    service_classes=[uuid, SERIAL_PORT_CLASS],
+    profiles=[SERIAL_PORT_PROFILE],
+)
+
 print("Waiting for connection on RFCOMM channel %d" % port)
 
-client_sock, client_info = server_sock.accept()
+client, client_info = bluetooth_socket.accept()
 print("Accepted connection from ", client_info)
 
 try:
     while True:
-        data = client_sock.recv(1024)
-        if len(data) == 0: break
+        data = client.recv(1024)
+        client.send("Hi there, I receive %s" %  data)
+        if len(data) == 0:
+            print "break"
+            break
         print("received [%s]" % data)
 except IOError:
+    print "io error"
     pass
 
-print("disconnected")
+print("Client disconnected")
 
-client_sock.close()
-server_sock.close()
+client.close()
+bluetooth_socket.close()
 print("all done")
