@@ -1,4 +1,4 @@
-
+# -*- coding: utf-8 -*-
 from bluetooth import *
 
 # 设置服务 UUID
