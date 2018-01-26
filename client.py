@@ -1,48 +1,37 @@
-# file: rfcomm-client.py
-# auth: Albert Huang <albert@csail.mit.edu>
-# desc: simple demonstration of a client application that uses RFCOMM sockets
-#       intended for use with rfcomm-server
-#
-# $Id: rfcomm-client.py 424 2006-08-24 03:35:54Z albert $
-
+# -*- coding: utf-8 -*-
 from bluetooth import *
 import sys
 
-if sys.version < '3':
-    input = raw_input
-
-addr = None
-
-if len(sys.argv) < 2:
-    print("no device specified.  Searching all nearby bluetooth devices for")
-    print("the SampleServer service")
-else:
-    addr = sys.argv[1]
-    print("Searching for SampleServer on %s" % addr)
-
-# search for the SampleServer service
+# 获取服务
 uuid = "63078d70-feb9-11e7-9812-dca90488bd22"
-service_matches = find_service( uuid = uuid, address = addr )
+service_matches = find_service(uuid=uuid)
 
 if len(service_matches) == 0:
-    print("couldn't find the SampleServer service =(")
-    sys.exit(0)
+    print("找不到对应的服务。")
+    sys.exit(1)
 
 first_match = service_matches[0]
 port = first_match["port"]
 name = first_match["name"]
 host = first_match["host"]
 
-print("connecting to \"%s\" on %s" % (name, host))
+print "找到蓝牙服务", first_match
 
-# Create the client socket
-sock=BluetoothSocket( RFCOMM )
-sock.connect((host, port))
+# 创建客户端 Socket
+socket = BluetoothSocket(RFCOMM)
+socket.connect((host, port))
 
-print("connected.  type stuff")
+# 收发数据
 while True:
-    data = input()
-    if len(data) == 0: break
-    sock.send(data)
+    q = raw_input("我：")
+    if q == "exit":
+        break
+    elif q:
+        # 向客户端发送内容
+        socket.send(q)
 
-sock.close()
+    # 获取客户发送的内容
+    print "对方：", socket.recv(1024)
+
+# 关闭连接
+socket.close()

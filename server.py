@@ -1,19 +1,15 @@
-# file: rfcomm-server.py
-# auth: Albert Huang <albert@csail.mit.edu>
-# desc: simple demonstration of a server application that uses RFCOMM sockets
-#
-# $Id: rfcomm-server.py 518 2007-08-10 07:20:07Z albert $
-
+# -*- coding: utf-8 -*-
 from bluetooth import *
 
+# 设置服务 UUID
+uuid = "63078d70-feb9-11e7-9812-dca90488bd22"
+
+# 创建服务端 Socket
 bluetooth_socket = BluetoothSocket(RFCOMM)
 bluetooth_socket.bind(("", PORT_ANY))
 bluetooth_socket.listen(1)
 
-port = bluetooth_socket.getsockname()[1]
-
-uuid = "63078d70-feb9-11e7-9812-dca90488bd22"
-
+# 创建布告服务
 advertise_service(
     bluetooth_socket,
     "Chat On Pi",
@@ -22,25 +18,24 @@ advertise_service(
     profiles=[SERIAL_PORT_PROFILE],
 )
 
-print("Waiting for connection on RFCOMM channel %d" % port)
-
+# 获取客户端连接
 client, client_info = bluetooth_socket.accept()
-print("Accepted connection from ", client_info)
+print "客户连接：", client_info
 
-try:
-    while True:
-        data = client.recv(1024)
-        client.send("Hi there, I receive %s" %  data)
-        if len(data) == 0:
-            print "break"
-            break
-        print("received [%s]" % data)
-except IOError:
-    print "io error"
-    pass
+while True
+    # 获取客户发送的内容
+    data = client.recv(1024)
+    print "对方：", data
 
-print("Client disconnected")
+    q = raw_input("我：")
+    if q == "exit":
+        break
+    elif q:
+        # 向客户端发送内容
+        client.send(q)
 
+# 关闭客户端连接
 client.close()
+
+# 关闭服务器连接。
 bluetooth_socket.close()
-print("all done")
