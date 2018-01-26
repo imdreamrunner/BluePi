@@ -20,7 +20,14 @@ advertise_service(
 
 # 获取客户端连接
 client, client_info = bluetooth_socket.accept()
-print "客户连接：" client_info
+print "客户连接：", client_info
+
+# 获取客户发送的内容
+data = client.recv(1024)
+print "客户发送了", data
+
+# 向客户端发送内容
+client.send("感谢你的信息")
 
 # 关闭客户端连接
 client.close()
