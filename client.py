@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from bluetooth import *
 import sys
+import security
 
 # 获取服务
 uuid = "63078d70-feb9-11e7-9812-dca90488bd22"
@@ -20,6 +21,12 @@ print "找到蓝牙服务", first_match
 # 创建客户端 Socket
 socket = BluetoothSocket(RFCOMM)
 socket.connect((host, port))
+
+my_public_key = security.get_public_key()
+socket.send(my_public_key)
+
+server_public_key = socket.recv(1024)
+print 'server_public_key', server_public_key
 
 # 收发数据
 while True:

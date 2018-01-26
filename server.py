@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from bluetooth import *
+import security
 
 # 设置服务 UUID
 uuid = "63078d70-feb9-11e7-9812-dca90488bd22"
@@ -22,10 +23,15 @@ advertise_service(
 client, client_info = bluetooth_socket.accept()
 print "客户连接：", client_info
 
+my_public_key = security.get_public_key()
+client.send(my_public_key)
+
+client_public_key = client.recv(1024)
+print 'client_public_key', client_public_key
+
 while True:
     # 获取客户发送的内容
-    data = client.recv(1024)
-    print "对方：", data
+    print "对方：", client.recv(1024)
 
     q = raw_input("我：")
     if q == "exit":
