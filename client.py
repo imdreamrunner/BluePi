@@ -26,7 +26,6 @@ my_public_key = security.get_public_key()
 socket.send(my_public_key)
 
 server_public_key = socket.recv(1024)
-print 'server_public_key', server_public_key
 
 # 收发数据
 while True:
@@ -35,10 +34,10 @@ while True:
         break
     elif q:
         # 向客户端发送内容
-        socket.send(q)
+        socket.send(security.encrypt(q, server_public_key))
 
     # 获取客户发送的内容
-    print "对方：", socket.recv(1024)
+    print "对方：", security.decrypt(socket.recv(1024))
 
 # 关闭连接
 socket.close()

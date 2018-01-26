@@ -27,18 +27,17 @@ my_public_key = security.get_public_key()
 client.send(my_public_key)
 
 client_public_key = client.recv(1024)
-print 'client_public_key', client_public_key
 
 while True:
     # 获取客户发送的内容
-    print "对方：", client.recv(1024)
+    print "对方：", security.decrypt(client.recv(1024))
 
     q = raw_input("我：")
     if q == "exit":
         break
     elif q:
         # 向客户端发送内容
-        client.send(q)
+        client.send(security.encrypt(q, client_public_key))
 
 # 关闭客户端连接
 client.close()
