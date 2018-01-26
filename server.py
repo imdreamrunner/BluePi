@@ -22,7 +22,7 @@ advertise_service(
 client, client_info = bluetooth_socket.accept()
 print "客户连接：", client_info
 
-while True
+while True:
     # 获取客户发送的内容
     data = client.recv(1024)
     print "对方：", data
